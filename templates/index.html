@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Controle de Estudos com IA</title>
+    <style>
+        :root { --primary: #4a148c; --secondary: #34A853; --accent: #fbc02d; --dark: #202124; --light-bg: #f3e5f5; --border-color: #e0e0e0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; margin: 0; background-color: #f4f4f9; color: var(--dark); }
+        .container { max-width: 900px; margin: 20px auto; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        nav { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; padding: 10px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        nav button { background-color: #fff; color: var(--primary); border: 2px solid var(--primary); padding: 10px 20px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        nav button.active, nav button:hover { background-color: var(--primary); color: white; }
+        h1, h2, h3 { color: var(--primary); text-align: center; }
+        h4 { color: #6a1b9a; margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; text-align: left; }
+        h5 { color: #888; text-transform: uppercase; font-size: 0.9em; letter-spacing: 0.5px; margin-top: 15px; }
+        .view { display: none; }
+        .view.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        button { background-color: var(--primary); color: white; border: none; padding: 12px 18px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: background-color 0.3s; }
+        button:hover { background-color: #6a1b9a; }
+        button:disabled { background-color: #9e9e9e; cursor: not-allowed; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        .error-message { color: #c62828; background-color: #ffcdd2; padding: 15px; border-radius: 8px; border-left: 5px solid #c62828; }
+        .result-card { background-color: var(--light-bg); border: 1px solid #e1bee7; padding: 20px; margin-top: 20px; border-radius: 8px; }
+        .week-card { background: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        ul { padding-left: 20px; list-style-type: '✓ '; }
+        li { margin-bottom: 8px; }
+        .resource-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+             <h1>Painel de Controle de Estudos</h1>
+            <nav>
+                <button onclick="showView('cronograma-view')" class="active">Gerador de Cronogramas</button>
+                <button onclick="showView('desafios-view')">Fábrica de Desafios</button>
+                <button onclick="showView('dicas-view')">Central de Dicas</button>
+            </nav>
+        </header>
+
+        <main>
+            <div id="cronograma-view" class="view active">
+                 <div id="cronograma-form-container">
+                    <h2>Crie um Plano de Estudos Personalizado</h2>
+                    <form id="scheduleForm">
+                        <div class="form-group"><label for="schedule-goals">Seus Objetivos:</label><textarea id="schedule-goals" name="goals" required placeholder="Ex: Me tornar um desenvolvedor backend em 6 meses, com foco em Python e Django."></textarea></div>
+                        <div class="form-group"><label for="schedule-level">Seu Nível:</label><select id="schedule-level" name="level" required><option value="Iniciante">Iniciante</option><option value="Intermediário">Intermediário</option><option value="Avançado">Avançado</option></select></div>
+                        <div class="form-group"><label for="schedule-time">Horas/Semana:</label><input type="number" id="schedule-time" name="time" min="1" required placeholder="Ex: 10"></div>
+                        <div class="form-group"><label for="schedule-start">Data de Início:</label><input type="date" id="schedule-start" name="start_date" required></div>
+                        <div class="form-group"><label for="schedule-end">Data Final (Opcional):</label><input type="date" id="schedule-end" name="end_date"></div>
+                        <button type="submit">Gerar Cronograma</button>
+                    </form>
+                </div>
+                <div id="cronograma-loading" style="display:none; text-align: center; padding: 20px;"><p>Orquestrando agentes para o seu cronograma...</p></div>
+                <div id="cronograma-error" class="error-message" style="display:none;"></div>
+                <div id="cronograma-result-container" style="display:none;"></div>
+            </div>
+
+            <div id="desafios-view" class="view">
+                 <h2>Gere um Desafio Prático</h2>
+                <form id="challengeForm">
+                    <div class="form-group"><label for="challenge-topic">Tópico ou Assunto:</label><input type="text" id="challenge-topic" name="topic" required placeholder="Ex: Listas em Python, SQL Joins"></div>
+                    <div class="form-group"><label for="challenge-level">Seu Nível:</label><select id="challenge-level" name="level" required><option value="Iniciante">Iniciante</option><option value="Intermediário">Intermediário</option><option value="Avançado">Avançado</option></select></div>
+                    <div class="form-group"><label for="challenge-context">Contexto (Opcional):</label><textarea id="challenge-context" name="context" placeholder="Ex: Quero focar em manipulação de arrays"></textarea></div>
+                    <button type="submit">Gerar Desafio</button>
+                </form>
+                <div id="challenge-loading" style="display:none; text-align: center; padding: 20px;"><p>Consultando o tutor para o seu desafio...</p></div>
+                <div id="challenge-result" class="result-card" style="display:none;"></div>
+            </div>
+
+            <div id="dicas-view" class="view">
+                 <h2>Receba uma Dica Avançada</h2>
+                <form id="tipForm">
+                    <div class="form-group"><label for="tip-topic">Tópico ou Assunto:</label><input type="text" id="tip-topic" name="topic" required placeholder="Ex: Otimização de performance em Django"></div>
+                    <div class="form-group"><label for="tip-level">Seu Nível:</label><select id="tip-level" name="level" required><option value="Iniciante">Iniciante</option><option value="Intermediário">Intermediário</option><option value="Avançado">Avançado</option></select></div>
+                    <div class="form-group"><label for="tip-context">Contexto (Opcional):</label><textarea id="tip-context" name="context" placeholder="Ex: Preciso de uma dica para otimização de queries"></textarea></div>
+                    <button type="submit">Obter Dica</button>
+                </form>
+                <div id="tip-loading" style="display:none; text-align: center; padding: 20px;"><p>Consultando o tutor para sua dica...</p></div>
+                <div id="tip-result" class="result-card" style="display:none;"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // IIFE para criar um escopo e evitar conflitos de variáveis globais
+        (function() {
+            // Seletores de elementos DOM
+            const scheduleForm = document.getElementById('scheduleForm');
+            const scheduleResultContainer = document.getElementById('cronograma-result-container');
+            const cronogramaFormContainer = document.getElementById('cronograma-form-container');
+            const cronogramaLoading = document.getElementById('cronograma-loading');
+            const cronogramaError = document.getElementById('cronograma-error');
+            const challengeForm = document.getElementById('challengeForm');
+            const tipForm = document.getElementById('tipForm');
+
+            // --- LÓGICA DE NAVEGAÇÃO E UI ---
+            window.showView = function(viewId) {
+                document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+                const viewToShow = document.getElementById(viewId);
+                if(viewToShow) viewToShow.classList.add('active');
+                
+                document.querySelectorAll('nav button').forEach(button => {
+                    button.classList.remove('active');
+                    if (button.getAttribute('onclick').includes(viewId)) {
+                        button.classList.add('active');
+                    }
+                });
+            }
+
+            // --- CRONOGRAMA ---
+            document.addEventListener('DOMContentLoaded', () => {
+                const savedSchedule = localStorage.getItem('studySchedule');
+                if (savedSchedule) {
+                    try {
+                        renderSchedule(JSON.parse(savedSchedule));
+                    } catch (e) {
+                        console.error("Erro ao parsear plano salvo:", e);
+                        localStorage.removeItem('studySchedule');
+                        showView('cronograma-view');
+                        cronogramaFormContainer.style.display = 'block';
+                        scheduleResultContainer.style.display = 'none';
+                    }
+                } else {
+                    showView('cronograma-view');
+                    cronogramaFormContainer.style.display = 'block';
+                    scheduleResultContainer.style.display = 'none';
+                }
+                document.getElementById('schedule-start').value = new Date().toISOString().split('T')[0];
+            });
+            
+            function renderSchedule(recommendation) {
+                cronogramaFormContainer.style.display = 'none';
+                scheduleResultContainer.style.display = 'block';
+                let html = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <h3>Seu Plano Detalhado</h3>
+                        <div>
+                            <button onclick="downloadPDF()">Baixar (PDF)</button>
+                            <button onclick="createNewSchedule()" style="background-color: #c62828;">Criar Novo</button>
+                        </div>
+                    </div>
+                    <div id="printable-schedule">
+                        <p>${recommendation.overview}</p>
+                        ${recommendation.weekly_schedule.map(week => `
+                            <div class="week-card">
+                                <h3>Semana ${week.week_number}: ${week.weekly_theme}</h3>
+                                <small>${week.start_date} - ${week.end_date}</small>
+                                
+                                <h4>🎯 Objetivos de Aprendizagem</h4>
+                                <ul>${week.learning_objectives.map(g => `<li>${g}</li>`).join('')}</ul>
+
+                                <h4>📚 Tópicos Centrais da Semana</h4>
+                                <ul>${week.study_topics.map(t => `<li>${t}</li>`).join('')}</ul>
+
+                                <h4>🗓️ Plano Diário Sugerido</h4>
+                                <ul>${week.daily_plan.map(d => `<li><strong>${d.days}:</strong> ${d.activity}</li>`).join('')}</ul>
+
+                                <h4>📚 Recursos Específicos</h4>
+                                <div class="resource-section">
+                                    <div><h5>📰 Artigos & Blogs</h5><ul>${week.resources.articles_blogs.map(m => `<li>${m}</li>`).join('')}</ul></div>
+                                    <div><h5>🎬 Vídeos & Tutoriais</h5><ul>${week.resources.videos_tutorials.map(m => `<li>${m}</li>`).join('')}</ul></div>
+                                    <div><h5>📖 Livros & Capítulos</h5><ul>${week.resources.books_chapters.map(m => `<li>${m}</li>`).join('')}</ul></div>
+                                </div>
+
+                                <h4>🛠️ Projeto da Semana</h4><p>${week.weekly_project}</p>
+                                
+                                <h4>💡 Ferramentas e Dicas</h4><ul>${week.tools_and_tips.map(t => `<li>${t}</li>`).join('')}</ul>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                scheduleResultContainer.innerHTML = html;
+            }
+
+            window.createNewSchedule = function() {
+                if (confirm("Apagar o cronograma atual e criar um novo?")) {
+                    localStorage.removeItem('studySchedule');
+                    scheduleResultContainer.style.display = 'none';
+                    cronogramaFormContainer.style.display = 'block';
+                    scheduleForm.reset();
+                    document.getElementById('schedule-start').value = new Date().toISOString().split('T')[0];
+                }
+            }
+
+            window.downloadPDF = function() {
+                const element = document.getElementById('printable-schedule');
+                if (!element) return alert("Nada para baixar.");
+                const opt = { margin: 0.5, filename: 'cronograma_de_estudos.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
+                html2pdf().from(element).set(opt).save();
+            }
+
+            scheduleForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = e.target.querySelector('button');
+                btn.disabled = true;
+                cronogramaLoading.style.display = 'block';
+                cronogramaError.style.display = 'none';
+                cronogramaFormContainer.style.display = 'none';
+
+                try {
+                    const response = await fetch('/generate_schedule', { method: 'POST', body: new FormData(scheduleForm) });
+                    const data = await response.json();
+                    if (!data.success) throw new Error(data.error);
+                    localStorage.setItem('studySchedule', JSON.stringify(data.recommendation));
+                    renderSchedule(data.recommendation);
+                } catch (error) {
+                    cronogramaError.textContent = `Erro: ${error.message}`;
+                    cronogramaError.style.display = 'block';
+                    cronogramaFormContainer.style.display = 'block';
+                } finally {
+                    btn.disabled = false;
+                    cronogramaLoading.style.display = 'none';
+                }
+            });
+
+            // --- FÁBRICA DE DESAFIOS E CENTRAL DE DICAS ---
+            challengeForm.addEventListener('submit', (e) => { e.preventDefault(); handleToolSubmit(e, '/generate_challenge', 'challenge-loading', 'challenge-result'); });
+            tipForm.addEventListener('submit', (e) => { e.preventDefault(); handleToolSubmit(e, '/generate_tip', 'tip-loading', 'tip-result'); });
+            
+            async function handleToolSubmit(event, endpoint, loadingId, resultId) {
+                const form = event.target;
+                const btn = form.querySelector('button');
+                const loadingDiv = document.getElementById(loadingId);
+                const resultDiv = document.getElementById(resultId);
+
+                btn.disabled = true;
+                loadingDiv.style.display = 'block';
+                resultDiv.style.display = 'none';
+                
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch(endpoint, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+                    const result = await response.json();
+                    if (!result.success) throw new Error(result.error);
+                    
+                    let html = '';
+                    if (endpoint.includes('challenge')) {
+                        html = `<h4>Desafio:</h4><p style="font-style: italic;">${result.data.challenge.replace(/\n/g, '<br>')}</p><hr><h4>Solução Sugerida:</h4><p>${result.data.solution.replace(/\n/g, '<br>')}</p>`;
+                    } else {
+                        html = `<h4>${result.data.title}</h4><p>${result.data.description.replace(/\n/g, '<br>')}</p>`;
+                    }
+                    resultDiv.innerHTML = html;
+                    resultDiv.style.display = 'block';
+                } catch (error) {
+                    resultDiv.innerHTML = `<p class="error-message">Erro: ${error.message}</p>`;
+                } finally {
+                    btn.disabled = false;
+                    loadingDiv.style.display = 'none';
+                }
+            }
+        })();
+    </script>
+</body>
+</html>
