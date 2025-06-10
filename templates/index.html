@@ -35,7 +35,7 @@
 <body>
     <div class="container">
         <header>
-             <h1>Painel de Controle de Estudos</h1>
+            <h1>Painel de Controle de Estudos</h1>
             <nav>
                 <button onclick="showView('cronograma-view')" class="active">Gerador de Cronogramas</button>
                 <button onclick="showView('desafios-view')">Fábrica de Desafios</button>
@@ -151,25 +151,19 @@
                             <div class="week-card">
                                 <h3>Semana ${week.week_number}: ${week.weekly_theme}</h3>
                                 <small>${week.start_date} - ${week.end_date}</small>
-                                
                                 <h4>🎯 Objetivos de Aprendizagem</h4>
                                 <ul>${week.learning_objectives.map(g => `<li>${g}</li>`).join('')}</ul>
-
                                 <h4>📚 Tópicos Centrais da Semana</h4>
                                 <ul>${week.study_topics.map(t => `<li>${t}</li>`).join('')}</ul>
-
                                 <h4>🗓️ Plano Diário Sugerido</h4>
                                 <ul>${week.daily_plan.map(d => `<li><strong>${d.days}:</strong> ${d.activity}</li>`).join('')}</ul>
-
                                 <h4>📚 Recursos Específicos</h4>
                                 <div class="resource-section">
                                     <div><h5>📰 Artigos & Blogs</h5><ul>${week.resources.articles_blogs.map(m => `<li>${m}</li>`).join('')}</ul></div>
                                     <div><h5>🎬 Vídeos & Tutoriais</h5><ul>${week.resources.videos_tutorials.map(m => `<li>${m}</li>`).join('')}</ul></div>
                                     <div><h5>📖 Livros & Capítulos</h5><ul>${week.resources.books_chapters.map(m => `<li>${m}</li>`).join('')}</ul></div>
                                 </div>
-
                                 <h4>🛠️ Projeto da Semana</h4><p>${week.weekly_project}</p>
-                                
                                 <h4>💡 Ferramentas e Dicas</h4><ul>${week.tools_and_tips.map(t => `<li>${t}</li>`).join('')}</ul>
                             </div>
                         `).join('')}
@@ -242,13 +236,31 @@
                     if (!result.success) throw new Error(result.error);
                     
                     let html = '';
+                    
+                    // ===============================================
+                    //  LÓGICA DO BOTÃO "EXIBIR SOLUÇÃO" IMPLEMENTADA
+                    // ===============================================
                     if (endpoint.includes('challenge')) {
-                        html = `<h4>Desafio:</h4><p style="font-style: italic;">${result.data.challenge.replace(/\n/g, '<br>')}</p><hr><h4>Solução Sugerida:</h4><p>${result.data.solution.replace(/\n/g, '<br>')}</p>`;
-                    } else {
+                        // Esconde a solução e adiciona um botão para revelá-la
+                        html = `
+                            <h4>Desafio Proposto:</h4>
+                            <p style="font-style: italic;">${result.data.challenge.replace(/\n/g, '<br>')}</p>
+                            <button class="show-solution-btn" onclick="this.nextElementSibling.style.display = 'block'; this.style.display = 'none';" style="margin-top: 15px; background-color: var(--accent); color: var(--dark);">
+                                Revelar Solução
+                            </button>
+                            <div class="solution" style="display: none; margin-top: 15px;">
+                                <hr>
+                                <h4>Solução Sugerida:</h4>
+                                <p>${result.data.solution.replace(/\n/g, '<br>')}</p>
+                            </div>
+                        `;
+                    } else { // Para a Central de Dicas
                         html = `<h4>${result.data.title}</h4><p>${result.data.description.replace(/\n/g, '<br>')}</p>`;
                     }
+
                     resultDiv.innerHTML = html;
                     resultDiv.style.display = 'block';
+
                 } catch (error) {
                     resultDiv.innerHTML = `<p class="error-message">Erro: ${error.message}</p>`;
                 } finally {
