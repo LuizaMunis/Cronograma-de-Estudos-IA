@@ -6,8 +6,7 @@
 
 Um assistente de estudos inteligente que utiliza uma arquitetura de múltiplos agentes de IA (Google Gemini) para criar planos de estudo detalhados, gerar desafios práticos e fornecer dicas técnicas sob demanda.
 
-![Screenshot do App](https://i.ibb.co/L5BKnC9/screencapture-127-0-0-1-5000-2024-06-07-20-43-34.png)
-*(Sugestão: Tire um print da sua tela e substitua o link acima pela sua própria imagem)*
+![Screenshot do App](![image](https://github.com/user-attachments/assets/de8c3713-7e4a-469e-849a-68eaade5f2ee)
 
 ---
 
