@@ -2,7 +2,6 @@
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue?style=for-the-badge&logo=python)
 ![Flask](https://img.shields.io/badge/Flask-2.0%2B-black?style=for-the-badge&logo=flask)
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)
 
 Um assistente de estudos inteligente que utiliza uma arquitetura de múltiplos agentes de IA (Google Gemini) para criar planos de estudo detalhados, gerar desafios práticos e fornecer dicas técnicas sob demanda.
 
@@ -21,7 +20,6 @@ Um assistente de estudos inteligente que utiliza uma arquitetura de múltiplos a
   - [Instalação Passo a Passo](#instalação-passo-a-passo)
 - [🚀 Como Usar](#-como-usar)
 - [📂 Estrutura do Projeto](#-estrutura-do-projeto)
-- [📄 Licença](#-licença)
 
 ---
 
@@ -78,8 +76,8 @@ Siga estas instruções para obter uma cópia do projeto e executá-la em sua m�
 
 1.  **Clone o repositório:**
     ```sh
-    git clone [https://github.com/seu-usuario/nome-do-repositorio.git](https://github.com/seu-usuario/nome-do-repositorio.git)
-    cd nome-do-repositorio
+    git clone https://github.com/LuizaMunis/Cronograma-de-Estudos-IA.git
+    cd Cronograma-de-Estudos-IA
     ```
 
 2.  **Crie e ative um ambiente virtual (altamente recomendado):**
@@ -148,10 +146,10 @@ Siga estas instruções para obter uma cópia do projeto e executá-la em sua m�
 
 ## 📂 Estrutura do Projeto
 
+```text
 /painel-de-estudos-ia
 |-- app.py              # Lógica do backend Flask, rotas e comunicação com a IA
 |-- templates/
 |   |-- index.html      # O único arquivo HTML, que contém a interface e o JavaScript
 |-- requirements.txt    # Lista de dependências Python
 `-- README.md           # Este arquivo
-
