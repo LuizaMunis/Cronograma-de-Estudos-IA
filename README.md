@@ -65,7 +65,7 @@ O coração deste aplicativo é a sua arquitetura de múltiplos agentes, onde ca
 
 ## ⚙️ Começando
 
-Siga estas instruções para obter uma cópia do projeto e executá-la em sua máquina local para desenvolvimento e testes.
+Siga estas instruções para obter uma cópia do projeto e executá-la em sua máquina local.
 
 ### Pré-requisitos
 
@@ -75,63 +75,34 @@ Siga estas instruções para obter uma cópia do projeto e executá-la em sua m�
 ### Instalação Passo a Passo
 
 1.  **Clone o repositório:**
+    Abra seu terminal ou Git Bash e execute o comando:
     ```sh
     git clone https://github.com/LuizaMunis/Cronograma-de-Estudos-IA.git
     cd Cronograma-de-Estudos-IA
     ```
 
-2.  **Crie e ative um ambiente virtual (altamente recomendado):**
+2.  **Instale as dependências:**
+    Este projeto precisa de algumas bibliotecas Python para funcionar. Instale todas de uma vez com o seguinte comando completo no seu terminal:
     ```sh
-    # Para Windows
-    python -m venv venv
-    .\venv\Scripts\activate
-
-    # Para macOS/Linux
-    python3 -m venv venv
-    source venv/bin/activate
+    pip install Flask google-generativeai python-dotenv
     ```
 
-3.  **Crie um arquivo `requirements.txt`** com o seguinte conteúdo:
-    ```txt
-    Flask
-    google-generativeai
-    ```
-
-4.  **Instale as dependências:**
-    ```sh
-    pip install -r requirements.txt
-    ```
-
-5.  **Configure sua Chave de API do Google Gemini:**
-
-    O método mais seguro é usar variáveis de ambiente.
-
-    -   **No Windows (CMD/PowerShell):**
-        ```sh
-        set GOOGLE_API_KEY="SUA_CHAVE_DE_API_AQUI"
+3.  **Configure sua Chave de API:**
+    Para proteger sua chave, não a deixe no código.
+    -   Crie um arquivo chamado `.env` na pasta principal do projeto.
+    -   Dentro do arquivo `.env`, adicione a linha:
         ```
-    -   **No macOS/Linux:**
-        ```sh
-        export GOOGLE_API_KEY="SUA_CHAVE_DE_API_AQUI"
+        GOOGLE_API_KEY="SUA_CHAVE_DE_API_AQUI"
         ```
+    -   Certifique-se que o seu arquivo `app.py` está configurado para ler esta chave (como fizemos na nossa versão final).
+    -   **Importante:** Crie também um arquivo `.gitignore` e adicione `.env` a ele para que sua chave nunca seja enviada para o GitHub.
 
-    O arquivo `app.py` precisará ser ajustado para ler esta variável. Substitua a linha `genai.configure(...)` por:
-    ```python
-    import os
-    # ...
-    api_key = os.getenv("GOOGLE_API_KEY")
-    if not api_key:
-        raise ValueError("Chave de API não encontrada. Defina a variável de ambiente GOOGLE_API_KEY.")
-    genai.configure(api_key=api_key)
-    ```
-    *(**Nota:** Se preferir manter a chave diretamente no código para testes locais, como fizemos, lembre-se de nunca enviar este arquivo para um repositório público.)*
-
-6.  **Execute o aplicativo:**
+4.  **Execute o aplicativo:**
+    Com tudo instalado e configurado, execute o seguinte comando no seu terminal:
     ```sh
     python app.py
     ```
-
-    Abra seu navegador e acesse `http://127.0.0.1:5000`.
+    O aplicativo será iniciado e uma aba no seu navegador deve abrir automaticamente no endereço `http://127.0.0.1:5000`.
 
 ---
 
@@ -151,5 +122,4 @@ Siga estas instruções para obter uma cópia do projeto e executá-la em sua m�
 |-- app.py              # Lógica do backend Flask, rotas e comunicação com a IA
 |-- templates/
 |   |-- index.html      # O único arquivo HTML, que contém a interface e o JavaScript
-|-- requirements.txt    # Lista de dependências Python
 `-- README.md           # Este arquivo
